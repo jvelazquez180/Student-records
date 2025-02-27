@@ -1,5 +1,7 @@
 import tkinter as tk
+from datetime import datetime 
 from tkinter import messagebox
+from tkinter import font
 import sqlite3
 
 # Connect to SQLite database
@@ -33,28 +35,34 @@ def add_student():
     dob = entry_dob.get()
     graduation_date = entry_graduation_date.get()
     job_status = entry_job_status.get()
-    
-    cursor.execute('''
-        INSERT INTO students (name, dob, graduation_date, job_status)
-        VALUES (?, ?, ?, ?)
-    ''', (name, dob, graduation_date, job_status))
-    conn.commit()
-    messagebox.showinfo("Success", "Student added successfully!")
-    clear_fields()
+
+    if not (name.replace(" ", "") and dob.replace(" ", "") and graduation_date.replace(" ", "") and job_status.replace(" ", "")):
+        messagebox.showinfo("Error", "Please enter missing information")
+    else:
+        cursor.execute('''
+            INSERT INTO students (name, dob, graduation_date, job_status)
+            VALUES (?, ?, ?, ?)
+        ''', (name.strip(), dob, graduation_date.strip(), job_status.strip()))
+        conn.commit()
+        messagebox.showinfo("Success", "Student added successfully!")
+        clear_fields()
 
 # Function to add a graduation summary
 def add_summary():
     student_id = entry_student_id.get()
     summary_date = entry_summary_date.get()
     summary_text = entry_summary_text.get()
-    
-    cursor.execute('''
-        INSERT INTO graduation_summaries (student_id, summary_date, summary_text)
-        VALUES (?, ?, ?)
-    ''', (student_id, summary_date, summary_text))
-    conn.commit()
-    messagebox.showinfo("Success", "Summary added successfully!")
-    clear_fields()
+
+    if not (summary_text.replace(" ", "") and summary_date.replace(" ", "") and student_id.replace(" ", "")):
+        messagebox.showinfo("Error", "Please enter missing information")
+    else:
+        cursor.execute('''
+            INSERT INTO graduation_summaries (student_id, summary_date, summary_text)
+            VALUES (?, ?, ?)
+        ''', (student_id, summary_date, summary_text.strip()))
+        conn.commit()
+        messagebox.showinfo("Success", "Summary added successfully!")
+        clear_fields()
 
 # Clear input fields after submission
 def clear_fields():
@@ -93,16 +101,18 @@ def display_summaries(event):
         listbox_summaries.delete(0, tk.END)  # Clear current summaries listbox
         if summaries:
             for summary in summaries:
-                listbox_summaries.insert(tk.END, f"Date: {summary[2]} | Summary: {summary[3]}")
+                listbox_summaries.insert(tk.END, f"Date: {summary[2]} | {summary[3]}")
         else:
             listbox_summaries.insert(tk.END, "No summaries available for this student.")
 
 # Create main window
+current_date = datetime.now()
+formatted_time = current_date.strftime("%Y-%m-%d")
 root = tk.Tk()
-root.title("Student Record System")
+root.title(f"Student Record System | {formatted_time}")
 
 # Labels and input fields for adding students
-label_name = tk.Label(root, text="Name:")
+label_name = tk.Label(root, text="Name:", font="Monserrat")
 label_name.grid(row=0, column=0, padx=10, pady=5)
 entry_name = tk.Entry(root)
 entry_name.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
